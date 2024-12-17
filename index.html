@@ -1,12 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Portfolio</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dandelion</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+    }
+
+    .dandelion {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      cursor: pointer;
+    }
+
+    .seed {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: url('seed.png') no-repeat center center;
+      background-size: contain;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      color: black;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      visibility: hidden;
+      pointer-events: none;
+      white-space: pre-line; /* 줄바꿈 허용 */
+    }
+  </style>
 </head>
 <body>
-  <p>Hello, World!</p>
+  <img src="dandelion.png" alt="민들레" class="dandelion" id="dandelion">
+
+  <script>
+    const seedCount = 50; // 총 홀씨 수
+    const seedsPerClick = 5; // 한 번 클릭당 생성되는 홀씨 수
+    let createdSeeds = 0; // 현재 생성된 홀씨 수
+    const seedTexts = [
+  `요즘 나는 잘 웃는 사람인가?
+  그런 것 같다. 평범하게 사건 없이 흐르는 이 평화가 좋다라는 생각이 들 때 행복하다.
+  정적. 아무 걱정 없는 평화로움. 일상 속의 작은 기쁨. 우연히 랜덤으로 재생된 좋아하는 노래, 
+  빗소리가 듣고 싶을 때 마침 내리는 비, 깨어날 시간을 정하지 않고 잠드는 날, 
+  나를 위한 일을 기꺼이 해주는 주변 사람들 등.`,
+  "내년의 나에게 조언한다면?\n감각을 꾸준히 단련할 것",
+  "음과 쉼의 반복으로 만들어지는 리듬.\n일상 속 당신의 리듬이 이어질 수 있도록.",
+  `냉철한 현실 감각을 갖는 것은 중요한 일이다.
+  그러나 동시에, 현실에 환상의 색채를 더하는 것도 중요한 일이라고 생각한다.
+  - 책 온전히 나답게 -`,
+  "꿈속 프레임\n세트장?",
+  "5 7 12 33 37 43",
+  "여름이 좋아진 이유\n오감 - 시각. 촉각. 청각. 미각. 후각",
+  `사계절 커뮤니티가 활성화되면 일상에 지루함을 겪는 사람들에게
+  다음 계절을 기다려야 하는 이유를 만들어 줄 수 있다.`,
+  "타인의 경험에서 새로움을 발견하고 실행에 옮길 수 있다.",
+  "공유하는 기념일",
+  `에어링(Airing) : 호흡을 맞추다.
+  안정적인 호흡은 삶에 편안함을 준다. 삶과의 호흡을 맞추다.`,
+  "사랑하게 만들어서 지키게 하자!\n계절의 소중함 -> 환경",
+  "형용사 사전\n잘 안 쓰거나 잊혀진 단어, 사어 모음집.+해녀, 제주어, 사투리",
+  "자신의 정체성과 사회적 담론을 엮은 프로젝트",
+  "유기견 입양 가이드",
+  `노인 소외 / 소속감
+  많은 노인들은 소속감을 느끼며 사회생활을 할 수 있는 기회가 적다.
+  소속감을 빌미로 뜻하지 않게 종교나 정치활동에 깊게 빠지기도 한다. 
+  이를 방지하고 노인들 간의 소통을 원활하게 이어줄 수 있는 서비스.`,
+  `사계절은 사라지지 않을까? 정말?
+  환경오염으로 인해 이상기후가 진행되고 있는 지금, 
+  사계절은 어쩌면 영원하지 않을지도 모른다.
+  그러므로 우리는 사계절을 더욱 본격적으로 즐겨야 한다.`,
+  "취향 대백과",
+  `도움말 페이지가 필요할까? 고객센터도 필요 없을지도..
+  웹사이트에 들어가는 순간부터 AI와 함께.`,
+  `고유성을 만드는 일.
+  평범하게 사람들 속에 섞이고 싶지만 자신만의 특별한 무언가를 갖길 원함.`
+];
+  
+    const dandelion = document.getElementById('dandelion');
+    const body = document.body;
+  
+    dandelion.addEventListener('click', () => {
+      if (createdSeeds >= seedCount) return; // 최대 홀씨 수를 초과하면 아무것도 안 함
+  
+      for (let i = 0; i < seedsPerClick; i++) {
+        if (createdSeeds >= seedCount) break; // 최대 홀씨 수에 도달하면 멈춤
+        createSeed(createdSeeds);
+        createdSeeds++;
+      }
+    });
+  
+    function createSeed(index) {
+      const seed = document.createElement('div');
+      seed.className = 'seed';
+      body.appendChild(seed);
+  
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip';
+      tooltip.textContent = seedTexts[index];
+      body.appendChild(tooltip);
+  
+      // 화면 내에 랜덤 위치 생성
+      const x = Math.random() * (window.innerWidth - 50); // 여유 공간 추가
+      const y = Math.random() * (window.innerHeight - 50); // 여유 공간 추가
+  
+      // 홀씨 초기 위치 (중앙)
+      seed.style.left = `${window.innerWidth / 2}px`;
+      seed.style.top = `${window.innerHeight / 2}px`;
+  
+      // 홀씨 흩어지기
+      setTimeout(() => {
+        seed.style.left = `${x}px`;
+        seed.style.top = `${y}px`;
+        seed.style.opacity = 1;
+        seed.style.pointerEvents = 'auto';
+      }, 100);
+  
+      // 마우스 오버 시 텍스트 표시
+      seed.addEventListener('mouseover', (e) => {
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
+        tooltip.style.visibility = 'visible';
+      });
+  
+      // 마우스 아웃 시 텍스트 숨기기
+      seed.addEventListener('mouseout', () => {
+        tooltip.style.visibility = 'hidden';
+      });
+  
+      // 드래그 앤 드롭 기능 추가
+      let isDragging = false;
+  
+      seed.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        seed.style.zIndex = 1000; // 드래그 중인 요소를 맨 위로
+        const offsetX = e.clientX - seed.offsetLeft;
+        const offsetY = e.clientY - seed.offsetTop;
+  
+        const onMouseMove = (moveEvent) => {
+          if (!isDragging) return;
+          seed.style.left = `${moveEvent.clientX - offsetX}px`;
+          seed.style.top = `${moveEvent.clientY - offsetY}px`;
+        };
+  
+        const onMouseUp = () => {
+          isDragging = false;
+          seed.style.zIndex = ''; // 드래그 종료 후 z-index 초기화
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+  
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    }
+  </script>
+  
 </body>
 </html>
